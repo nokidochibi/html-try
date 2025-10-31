@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML 簡易プレビュー</title>
+    <!-- Tailwind CSSを読み込みます -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* スムーズなリサイズのためのスタイル */
+        #preview-container {
+            resize: vertical;
+            overflow: auto;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto p-4 max-w-6xl">
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">HTML 簡易プレビューツール</h1>
+            <p class="text-gray-600">左側にHTMLコードを貼り付けると、右側に結果がリアルタイムで表示されます。</p>
+        </header>
+
+        <!-- メインのレイアウト（PCでは横並び、スマホでは縦積み） -->
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- HTML入力エリア -->
+            <div class="bg-white rounded-lg shadow-md">
+                <h2 class="text-lg font-semibold p-4 border-b border-gray-200">HTML コード</h2>
+                <textarea id="html-input"
+                    class="w-full h-96 p-4 border-none resize-none focus:outline-none font-mono text-sm"
+                    placeholder="ここに <h1>こんにちは</h1> のようなHTMLコードを貼り付けてください..."
+                    aria-label="HTML code input"></textarea>
+            </div>
+
+            <!-- プレビューエリア -->
+            <div class="bg-white rounded-lg shadow-md" id="preview-container">
+                <h2 class="text-lg font-semibold p-4 border-b border-gray-200">プレビュー</h2>
+                <iframe id="preview-frame" class="w-full h-96 border-none" title="HTML Preview"></iframe>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const htmlInput = document.getElementById('html-input');
+        const previewFrame = document.getElementById('preview-frame');
+
+        /**
+         * プレビューを更新する関数
+         */
+        function updatePreview() {
+            // iframeのドキュメントを取得
+            const doc = previewFrame.contentWindow.document;
+            
+            // ユーザーの入力を取得
+            const htmlContent = htmlInput.value;
+            
+            // iframeに内容を書き込む
+            // これにより、入力されたHTMLがレンダリングされます
+            doc.open();
+            doc.write(htmlContent);
+            doc.close();
+        }
+
+        // ユーザーがキーを入力するたびにプレビューを更新する
+        htmlInput.addEventListener('input', updatePreview);
+
+        // ページ読み込み時に、サンプルコードで初期プレビューを行う
+        htmlInput.value = `<!-- ここにコードを書いてみましょう -->
+<div style="padding: 20px; font-family: sans-serif;">
+    <h1 style="color: #333;">こんにちは！</h1>
+    <p>これはHTMLプレビューです。</p>
+    <button style="background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
+        クリックできるボタン
+    </button>
+</div>
+`;
+        updatePreview();
+    </script>
+
+</body>
+</html>
