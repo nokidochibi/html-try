@@ -1,24 +1,18 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML リアルタイムプレビュー</title>
+    <title>HTML簡易ビューア</title>
     <!-- Tailwind CSSを読み込みます -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* 最小の高さを設定してレイアウト崩れを防ぐ */
-        #code-view, #preview-view {
-            min-height: 500px;
-        }
-    </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans h-full flex flex-col">
 
-    <div class="container mx-auto p-4 max-w-6xl">
-        <header class="mb-4 flex justify-between items-center">
+    <div class="w-full p-4 flex flex-col flex-grow">
+        <header class="mb-4 flex justify-between items-center flex-shrink-0">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">HTML プレビューサイト</h1>
+                <h1 class="text-3xl font-bold text-gray-800">HTML簡易ビューア</h1>
                 <p class="text-gray-600">コードを書いて、「プレビュー」ボタンで結果を確認できます。</p>
             </div>
             <!-- コード/プレビュー 切替ボタン -->
@@ -33,21 +27,21 @@
         </header>
 
         <!-- メインの表示エリア -->
-        <main>
+        <main class="flex-grow flex flex-col">
 
             <!-- HTML入力エリア -->
-            <div id="code-view" class="bg-white rounded-lg shadow-md">
+            <div id="code-view" class="bg-white rounded-lg shadow-md flex flex-col flex-grow">
                 <h2 class="text-lg font-semibold p-4 border-b border-gray-200">HTML コード</h2>
                 <textarea id="html-input"
-                    class="w-full h-96 p-4 border-none resize-none focus:outline-none font-mono text-sm"
+                    class="w-full p-4 border-none resize-none focus:outline-none font-mono text-sm flex-grow"
                     placeholder="ここに <h1>こんにちは</h1> のようなHTMLコードを貼り付けてください..."
                     aria-label="HTML code input"></textarea>
             </div>
 
             <!-- プレビューエリア (デフォルトは非表示) -->
-            <div id="preview-view" class="bg-white rounded-lg shadow-md hidden">
+            <div id="preview-view" class="bg-white rounded-lg shadow-md hidden flex flex-col flex-grow">
                 <h2 class="text-lg font-semibold p-4 border-b border-gray-200">プレビュー</h2>
-                <iframe id="preview-frame" class="w-full h-96 border-none" title="HTML Preview"></iframe>
+                <iframe id="preview-frame" class="w-full border-none flex-grow" title="HTML Preview"></iframe>
             </div>
 
         </main>
