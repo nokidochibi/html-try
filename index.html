@@ -14,15 +14,16 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans h-full flex flex-col overflow-hidden">
+<body class="bg-gray-50 font-sans h-screen flex flex-col overflow-hidden">
 
     <!-- ヘッダーエリア -->
     <!-- 
       スマホ対策: flex-col (縦並び) を基本にし、
       sm (640px以上) で flex-row (横並び) に切り替えます。
       gap-3 で要素間の余白を確保し、窮屈さを解消しました。
+      固定表示: sticky top-0 を追加し、万が一の画面スクロール時も上部に張り付くようにしました。
     -->
-    <header class="bg-white border-b border-gray-300 px-4 py-3 flex flex-col sm:flex-row justify-between items-center flex-shrink-0 gap-3 sm:gap-0 z-10 shadow-sm sm:shadow-none">
+    <header class="sticky top-0 bg-white border-b border-gray-300 px-4 py-3 flex flex-col sm:flex-row justify-between items-center flex-shrink-0 gap-3 sm:gap-0 z-10 shadow-sm sm:shadow-none">
         <div class="w-full sm:w-auto text-center sm:text-left">
             <h1 class="text-lg font-bold text-gray-800">HTML簡易ビューア</h1>
         </div>
