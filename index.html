@@ -4,48 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML簡易ビューア</title>
-    <!-- Tailwind CSSを読み込みます -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans h-full flex flex-col">
+<body class="bg-gray-50 font-sans h-full flex flex-col overflow-hidden">
 
-    <div class="w-full p-4 flex flex-col flex-grow">
-        <header class="mb-4 flex justify-between items-center flex-shrink-0">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">HTML簡易ビューア</h1>
-                <p class="text-gray-600">コードを書いて、「プレビュー」ボタンで結果を確認できます。</p>
-            </div>
-            <!-- コード/プレビュー 切替ボタン -->
-            <div class="flex rounded-lg shadow-sm" role="group">
-                <button type="button" id="code-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-gray-200 rounded-l-lg hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
+    <header class="bg-white border-b border-gray-300 px-4 py-3 flex justify-between items-center flex-shrink-0">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">HTML簡易ビューア</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            
+            <button type="button" id="clear-btn" class="px-3 py-2 text-sm font-medium text-red-600 bg-white border border-gray-300 rounded hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors">
+                クリア
+            </button>
+
+            <div class="flex rounded shadow-sm" role="group">
+                <button type="button" id="code-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-l hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
                     コード
                 </button>
-                <button type="button" id="preview-btn" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500">
+                <button type="button" id="preview-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-blue-500">
                     プレビュー
                 </button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- メインの表示エリア -->
-        <main class="flex-grow flex flex-col">
+    <main class="flex-grow flex flex-col relative w-full h-full bg-white">
 
-            <!-- HTML入力エリア -->
-            <div id="code-view" class="bg-white rounded-lg shadow-md flex flex-col flex-grow">
-                <h2 class="text-lg font-semibold p-4 border-b border-gray-200">HTML コード</h2>
-                <textarea id="html-input"
-                    class="w-full p-4 border-none resize-none focus:outline-none font-mono text-sm flex-grow"
-                    placeholder="ここに <h1>こんにちは</h1> のようなHTMLコードを貼り付けてください..."
-                    aria-label="HTML code input"></textarea>
-            </div>
+        <div id="code-view" class="flex flex-col flex-grow w-full h-full">
+            <textarea id="html-input"
+                class="w-full h-full p-4 border-none resize-none focus:outline-none font-mono text-sm leading-relaxed"
+                placeholder="ここにHTMLコードを入力してください..."
+                aria-label="HTML code input"></textarea>
+        </div>
 
-            <!-- プレビューエリア (デフォルトは非表示) -->
-            <div id="preview-view" class="bg-white rounded-lg shadow-md hidden flex flex-col flex-grow">
-                <h2 class="text-lg font-semibold p-4 border-b border-gray-200">プレビュー</h2>
-                <iframe id="preview-frame" class="w-full border-none flex-grow" title="HTML Preview"></iframe>
-            </div>
+        <div id="preview-view" class="hidden flex flex-col flex-grow w-full h-full">
+            <iframe id="preview-frame" class="w-full h-full border-none" title="HTML Preview"></iframe>
+        </div>
 
-        </main>
-    </div>
+    </main>
 
     <script>
         // --- 要素を取得 ---
@@ -54,6 +52,7 @@
         
         const codeBtn = document.getElementById('code-btn');
         const previewBtn = document.getElementById('preview-btn');
+        const clearBtn = document.getElementById('clear-btn'); // 追加
         
         const codeView = document.getElementById('code-view');
         const previewView = document.getElementById('preview-view');
@@ -78,53 +77,55 @@
             previewView.classList.add('hidden');
             
             // ボタンのアクティブ状態を切り替え
-            codeBtn.classList.add('bg-blue-600', 'text-white');
-            codeBtn.classList.remove('bg-white', 'text-gray-900');
+            codeBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+            codeBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
             
-            previewBtn.classList.add('bg-white', 'text-gray-900');
-            previewBtn.classList.remove('bg-blue-600', 'text-white');
+            previewBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+            previewBtn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+            
+            // コードビューに戻ったときに入力欄にフォーカス
+            htmlInput.focus();
         }
 
         /**
          * 「プレビュー」ビューを表示する
          */
         function showPreviewView() {
-            // プレビューを表示する前に、最新のコードでiframeを更新する
             updatePreview(); 
             
             codeView.classList.add('hidden');
             previewView.classList.remove('hidden');
 
             // ボタンのアクティブ状態を切り替え
-            previewBtn.classList.add('bg-blue-600', 'text-white');
-            previewBtn.classList.remove('bg-white', 'text-gray-900');
+            previewBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+            previewBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
             
-            codeBtn.classList.add('bg-white', 'text-gray-900');
-            codeBtn.classList.remove('bg-blue-600', 'text-white');
+            codeBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+            codeBtn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+        }
+
+        /**
+         * 入力欄をクリアする
+         */
+        function clearInput() {
+            // 確認ダイアログを出したい場合は以下のコメントアウトを外してください
+            // if (!confirm("入力内容をすべて消去しますか？")) return;
+            
+            htmlInput.value = '';
+            
+            // もしプレビュー画面にいた場合、コード画面に戻す方が自然なため戻します
+            showCodeView();
+            htmlInput.focus();
         }
 
         // --- イベントリスナーを設定 ---
 
-        // 各ボタンをクリックしたときの動作
         codeBtn.addEventListener('click', showCodeView);
         previewBtn.addEventListener('click', showPreviewView);
+        clearBtn.addEventListener('click', clearInput); // クリアボタンのイベント追加
 
-        // ページ読み込み時に、サンプルコードで初期プレビューを行う
-        // （ただし、リアルタイム更新はしなくなったので、プレビューボタンが押されたときに更新されます）
-        htmlInput.value = `<!-- ここにコードを書いてみましょう -->
-<div style="padding: 20px; font-family: sans-serif;">
-    <h1 style="color: #333;">こんにちは！</h1>
-    <p>これはHTMLプレビューです。</p>
-    <button style="background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
-        クリックできるボタン
-    </button>
-</div>
-`;
-        // 以前は入力のたびに更新していましたが、
-        // 今はプレビューボタンが押されたときにだけ更新するように変更しました。
-        // htmlInput.addEventListener('input', updatePreview); 
+        // 初期化：入力欄は空っぽのまま（以前のサンプルコード設定処理は削除しました）
     </script>
 
 </body>
 </html>
-
