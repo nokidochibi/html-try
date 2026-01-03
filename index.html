@@ -4,34 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML簡易ビューア</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* スマホでのタップ領域を考慮しつつ、PCでも見やすく調整 */
+        body {
+            /* iOSでのバウンススクロール防止など */
+            overscroll-behavior-y: none;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans h-full flex flex-col overflow-hidden">
 
-    <header class="bg-white border-b border-gray-300 px-4 py-3 flex justify-between items-center flex-shrink-0">
-        <div>
-            <h1 class="text-xl font-bold text-gray-800">HTML簡易ビューア</h1>
+    <!-- ヘッダーエリア -->
+    <!-- 
+      スマホ対策: flex-col (縦並び) を基本にし、
+      sm (640px以上) で flex-row (横並び) に切り替えます。
+      gap-3 で要素間の余白を確保し、窮屈さを解消しました。
+    -->
+    <header class="bg-white border-b border-gray-300 px-4 py-3 flex flex-col sm:flex-row justify-between items-center flex-shrink-0 gap-3 sm:gap-0 z-10 shadow-sm sm:shadow-none">
+        <div class="w-full sm:w-auto text-center sm:text-left">
+            <h1 class="text-lg font-bold text-gray-800">HTML簡易ビューア</h1>
         </div>
         
-        <div class="flex items-center gap-4">
+        <!-- 操作ボタンエリア -->
+        <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-center sm:justify-end">
             
-            <button type="button" id="clear-btn" class="px-3 py-2 text-sm font-medium text-red-600 bg-white border border-gray-300 rounded hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors">
-                クリア
-            </button>
+            <!-- 便利機能グループ: ペースト & クリア -->
+            <div class="flex gap-2">
+                <!-- 新機能：ペーストボタン -->
+                <button type="button" id="paste-btn" class="flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-emerald-700 bg-white border border-emerald-200 rounded hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors" title="クリップボードから貼り付け">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span class="hidden sm:inline">ペースト</span>
+                    <span class="inline sm:hidden">貼付</span>
+                </button>
 
+                <!-- クリアボタン -->
+                <button type="button" id="clear-btn" class="px-3 py-2 text-xs sm:text-sm font-medium text-red-600 bg-white border border-gray-300 rounded hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors" title="すべて消去">
+                    クリア
+                </button>
+            </div>
+
+            <div class="h-6 w-px bg-gray-300 mx-1 hidden sm:block"></div>
+
+            <!-- 表示切替グループ -->
             <div class="flex rounded shadow-sm" role="group">
-                <button type="button" id="code-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-l hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
+                <button type="button" id="code-btn" class="px-4 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-l hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
                     コード
                 </button>
-                <button type="button" id="preview-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-blue-500">
+                <button type="button" id="preview-btn" class="px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-blue-500">
                     プレビュー
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col relative w-full h-full bg-white">
+    <!-- メインの表示エリア -->
+    <main class="flex-grow flex flex-col relative w-full h-full bg-white overflow-hidden">
 
+        <!-- HTML入力エリア -->
         <div id="code-view" class="flex flex-col flex-grow w-full h-full">
             <textarea id="html-input"
                 class="w-full h-full p-4 border-none resize-none focus:outline-none font-mono text-sm leading-relaxed"
@@ -39,6 +72,7 @@
                 aria-label="HTML code input"></textarea>
         </div>
 
+        <!-- プレビューエリア -->
         <div id="preview-view" class="hidden flex flex-col flex-grow w-full h-full">
             <iframe id="preview-frame" class="w-full h-full border-none" title="HTML Preview"></iframe>
         </div>
@@ -52,51 +86,40 @@
         
         const codeBtn = document.getElementById('code-btn');
         const previewBtn = document.getElementById('preview-btn');
-        const clearBtn = document.getElementById('clear-btn'); // 追加
+        const clearBtn = document.getElementById('clear-btn');
+        const pasteBtn = document.getElementById('paste-btn'); // 追加
         
         const codeView = document.getElementById('code-view');
         const previewView = document.getElementById('preview-view');
 
-        /**
-         * プレビューを更新する関数
-         */
+        // --- 機能関数 ---
+
         function updatePreview() {
             const doc = previewFrame.contentWindow.document;
             const htmlContent = htmlInput.value;
-            
             doc.open();
             doc.write(htmlContent);
             doc.close();
         }
 
-        /**
-         * 「コード」ビューを表示する
-         */
         function showCodeView() {
             codeView.classList.remove('hidden');
             previewView.classList.add('hidden');
             
-            // ボタンのアクティブ状態を切り替え
             codeBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
             codeBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
             
             previewBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
             previewBtn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
             
-            // コードビューに戻ったときに入力欄にフォーカス
             htmlInput.focus();
         }
 
-        /**
-         * 「プレビュー」ビューを表示する
-         */
         function showPreviewView() {
             updatePreview(); 
-            
             codeView.classList.add('hidden');
             previewView.classList.remove('hidden');
 
-            // ボタンのアクティブ状態を切り替え
             previewBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
             previewBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
             
@@ -104,27 +127,60 @@
             codeBtn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
         }
 
-        /**
-         * 入力欄をクリアする
-         */
         function clearInput() {
-            // 確認ダイアログを出したい場合は以下のコメントアウトを外してください
-            // if (!confirm("入力内容をすべて消去しますか？")) return;
-            
+            if (htmlInput.value.length > 0) {
+                 // 誤操作防止のため、入力がある場合のみ確認（不要ならこのifを削除してください）
+                 // if (!confirm("入力内容をクリアしますか？")) return;
+            }
             htmlInput.value = '';
-            
-            // もしプレビュー画面にいた場合、コード画面に戻す方が自然なため戻します
             showCodeView();
-            htmlInput.focus();
         }
 
-        // --- イベントリスナーを設定 ---
+        /**
+         * クリップボードから貼り付ける処理
+         */
+        async function pasteFromClipboard() {
+            try {
+                // クリップボードのテキストを取得
+                const text = await navigator.clipboard.readText();
+                
+                // テキストエリアに挿入（現在のカーソル位置または末尾）
+                // ※全置換したい場合は単に htmlInput.value = text; にしてください
+                // 今回は「空っぽの状態から最速で」とのことなので、valueへの代入でも良いですが、
+                // 編集中の追記も考慮してカーソル位置への挿入動作にしておきます。
+                
+                if (!htmlInput.value) {
+                    // 空の場合はそのままセット
+                    htmlInput.value = text;
+                } else {
+                    // すでに文字がある場合はカーソル位置に挿入
+                    const start = htmlInput.selectionStart;
+                    const end = htmlInput.selectionEnd;
+                    const val = htmlInput.value;
+                    htmlInput.value = val.substring(0, start) + text + val.substring(end);
+                    // カーソル位置を調整
+                    htmlInput.selectionStart = htmlInput.selectionEnd = start + text.length;
+                }
+
+                // 貼り付け後、即座に編集画面へ（もしプレビュー画面にいたら）
+                showCodeView();
+                
+                // UX向上のため、一時的にボタンの色を変える等のフィードバックも可能ですが今回はシンプルに
+                
+            } catch (err) {
+                console.error('貼り付けに失敗しました:', err);
+                alert('クリップボードからの貼り付けに失敗しました。\nブラウザの権限設定を確認するか、手動で貼り付けてください。');
+            }
+        }
+
+        // --- イベントリスナー ---
 
         codeBtn.addEventListener('click', showCodeView);
         previewBtn.addEventListener('click', showPreviewView);
-        clearBtn.addEventListener('click', clearInput); // クリアボタンのイベント追加
+        clearBtn.addEventListener('click', clearInput);
+        pasteBtn.addEventListener('click', pasteFromClipboard);
 
-        // 初期化：入力欄は空っぽのまま（以前のサンプルコード設定処理は削除しました）
+        // 初期化：入力欄は空
     </script>
 
 </body>
