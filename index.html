@@ -67,8 +67,13 @@
 
         <!-- HTML入力エリア -->
         <div id="code-view" class="flex flex-col flex-grow w-full h-full">
+            <!-- 
+                スマホでのズーム防止対策:
+                text-base (16px) をデフォルトにし、sm (640px以上) の画面では text-sm (14px) に戻します。
+                これによりスマホ入力時に勝手に拡大されるのを防ぎます。
+            -->
             <textarea id="html-input"
-                class="w-full h-full p-4 border-none resize-none focus:outline-none font-mono text-sm leading-relaxed"
+                class="w-full h-full p-4 border-none resize-none focus:outline-none font-mono text-base sm:text-sm leading-relaxed"
                 placeholder="ここにHTMLコードを入力してください..."
                 aria-label="HTML code input"></textarea>
         </div>
@@ -88,7 +93,7 @@
         const codeBtn = document.getElementById('code-btn');
         const previewBtn = document.getElementById('preview-btn');
         const clearBtn = document.getElementById('clear-btn');
-        const pasteBtn = document.getElementById('paste-btn'); // 追加
+        const pasteBtn = document.getElementById('paste-btn'); 
         
         const codeView = document.getElementById('code-view');
         const previewView = document.getElementById('preview-view');
@@ -103,6 +108,11 @@
             doc.close();
         }
 
+        /**
+         * コード画面を表示する関数
+         * ジャンプ対策: ここでの自動focus()は削除しました。
+         * 必要な時だけ呼び出し元でfocus()します。
+         */
         function showCodeView() {
             codeView.classList.remove('hidden');
             previewView.classList.add('hidden');
@@ -113,7 +123,7 @@
             previewBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
             previewBtn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
             
-            htmlInput.focus();
+            // htmlInput.focus(); // ← 削除: 勝手なスクロール/キーボード起動を防ぐ
         }
 
         function showPreviewView() {
@@ -129,12 +139,12 @@
         }
 
         function clearInput() {
-            if (htmlInput.value.length > 0) {
-                 // 誤操作防止のため、入力がある場合のみ確認（不要ならこのifを削除してください）
-                 // if (!confirm("入力内容をクリアしますか？")) return;
-            }
             htmlInput.value = '';
             showCodeView();
+            // クリア後は入力したい場合が多いのでフォーカスしても良いが、
+            // 統一感を出すためユーザーのタップに任せるなら削除してもOK。
+            // 今回は入力開始の利便性を考え、クリア時のみフォーカスを残します。
+            htmlInput.focus();
         }
 
         /**
@@ -142,31 +152,24 @@
          */
         async function pasteFromClipboard() {
             try {
-                // クリップボードのテキストを取得
                 const text = await navigator.clipboard.readText();
                 
-                // テキストエリアに挿入（現在のカーソル位置または末尾）
-                // ※全置換したい場合は単に htmlInput.value = text; にしてください
-                // 今回は「空っぽの状態から最速で」とのことなので、valueへの代入でも良いですが、
-                // 編集中の追記も考慮してカーソル位置への挿入動作にしておきます。
-                
                 if (!htmlInput.value) {
-                    // 空の場合はそのままセット
                     htmlInput.value = text;
                 } else {
-                    // すでに文字がある場合はカーソル位置に挿入
                     const start = htmlInput.selectionStart;
                     const end = htmlInput.selectionEnd;
                     const val = htmlInput.value;
                     htmlInput.value = val.substring(0, start) + text + val.substring(end);
-                    // カーソル位置を調整
+                    // カーソル位置の更新（内部的な状態のみ更新し、スクロールはさせない）
                     htmlInput.selectionStart = htmlInput.selectionEnd = start + text.length;
                 }
 
-                // 貼り付け後、即座に編集画面へ（もしプレビュー画面にいたら）
+                // コード画面を表示（プレビューから来た場合などのため）
                 showCodeView();
                 
-                // UX向上のため、一時的にボタンの色を変える等のフィードバックも可能ですが今回はシンプルに
+                // ジャンプ対策: ここで htmlInput.focus() を呼ばないことで、
+                // 勝手なスクロールやズームアップ、キーボード起動を防ぎます。
                 
             } catch (err) {
                 console.error('貼り付けに失敗しました:', err);
@@ -176,7 +179,12 @@
 
         // --- イベントリスナー ---
 
-        codeBtn.addEventListener('click', showCodeView);
+        // コードボタンを押したときは、意図的に切り替えているのでフォーカスする
+        codeBtn.addEventListener('click', () => {
+            showCodeView();
+            htmlInput.focus();
+        });
+        
         previewBtn.addEventListener('click', showPreviewView);
         clearBtn.addEventListener('click', clearInput);
         pasteBtn.addEventListener('click', pasteFromClipboard);
